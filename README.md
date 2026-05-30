@@ -81,3 +81,12 @@ harm-reduction RAG assistant. See [docs/dataset.md](docs/dataset.md).
   tasks they serve
 
 Runnable, numbered scripts live in [examples/](examples/).
+
+## Testing
+
+```bash
+pytest                  # offline unit + fixture tests (no network)
+pytest -m live          # smoke tests against the live GraphQL API
+```
+
+Live tests are deselected by default and require a network connection.

@@ -60,7 +60,7 @@ class Transport:
     Example::
 
         from pypsychonaut import Transport
-        t = Transport(flaresolverr_url="http://localhost:8191")
+        t = Transport(flaresolverr_url="http://host:8191")
         t = Transport(mode="wayback")          # force the Internet Archive
     """
 
