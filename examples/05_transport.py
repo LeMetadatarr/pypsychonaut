@@ -18,7 +18,7 @@ def main() -> None:
     print("default transport:", default.transport._resolved_mode())
 
     # solve Cloudflare live via a FlareSolverr box
-    live = pw.PsychonautWiki(flaresolverr_url="http://192.168.1.116:8191")
+    live = pw.PsychonautWiki(flaresolverr_url="http://localhost:8191")
     print("flaresolverr:", live.transport._resolved_mode())
 
     # force the Internet Archive for wiki HTML (the GraphQL API is unaffected)

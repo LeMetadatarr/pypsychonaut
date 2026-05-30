@@ -43,5 +43,5 @@ def test_client_kwargs(monkeypatch):
     _clear_env(monkeypatch)
     import pypsychonaut as pw
     assert pw.PsychonautWiki(wayback=True).transport._resolved_mode() == "wayback"
-    c = pw.PsychonautWiki(flaresolverr_url="http://192.168.1.116:8191")
+    c = pw.PsychonautWiki(flaresolverr_url="http://localhost:8191")
     assert c.transport._resolved_mode() == "flaresolverr"
