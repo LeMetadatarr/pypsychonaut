@@ -26,7 +26,7 @@ By kwargs:
 
 ```python
 import pypsychonaut as pw
-pw.PsychonautWiki(flaresolverr_url="http://host:8191")   # live via FlareSolverr
+pw.PsychonautWiki(flaresolverr_url="http://localhost:8191")   # live via FlareSolverr
 pw.PsychonautWiki(wayback=True)                          # Internet Archive
 pw.PsychonautWiki(wayback_fallback=True)                 # live, then archive
 ```
@@ -35,7 +35,7 @@ By environment (prefix `PYPSYCHONAUT_`, explicit kwargs always win):
 
 ```bash
 export PYPSYCHONAUT_TRANSPORT=flaresolverr
-export PYPSYCHONAUT_FLARESOLVERR_URL=http://host:8191
+export PYPSYCHONAUT_FLARESOLVERR_URL=http://localhost:8191
 export PYPSYCHONAUT_FLARESOLVERR_TIMEOUT=60000   # ms
 export PYPSYCHONAUT_WAYBACK_FALLBACK=1
 ```
