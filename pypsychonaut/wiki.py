@@ -11,10 +11,15 @@ Two surfaces:
 name using the :data:`pypsychonaut.slang.DRUG_SLANG` lexicon and the live
 substance list, so a phrase like ``"took some acid last night"`` resolves to
 ``"LSD"`` before hitting the API.
+
+:func:`list_wiki_pages` discovers all wiki page titles via the site's sitemap
+(coverage extends beyond GraphQL substances to include effects, article stubs,
+and cross-references).
 """
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
+from urllib.parse import unquote
 
 from pypsychonaut._transport import Transport, default_transport
 from pypsychonaut.parse import parse_substance_index, parse_substance_list
@@ -177,6 +182,44 @@ def search_psychonaut_wiki(substance: str, *,
     return [Substance.from_graphql(node) for node in (data.get("substances") or [])]
 
 
+def list_wiki_pages(timeout: float = 30.0) -> List[str]:
+    """Return all wiki page titles discovered via the PsychonautWiki sitemap.
+
+    The sitemap covers the entire wiki (substances, effects, article stubs, and
+    cross-references), whereas :func:`get_substance_list` returns only substances
+    catalogued on ``Summary_index``. This function is useful for building
+    comprehensive datasets or crawling the full knowledge base.
+
+    Args:
+        timeout: Per-request timeout in seconds (default 30s).
+
+    Returns:
+        A list of URL-decoded wiki page titles (e.g., ``["LSD", "Psilocybin", ...]``).
+
+    Raises:
+        ImportError: if ``sitemapper`` is not installed.
+
+    Example::
+
+        import pypsychonaut as pw
+        all_pages = pw.list_wiki_pages()
+        print(len(all_pages), "pages in PsychonautWiki")
+    """
+    try:
+        from sitemapper import discover
+    except ImportError:
+        raise ImportError(
+            "list_wiki_pages() requires the 'sitemapper' package; "
+            "install it with: pip install sitemapper"
+        )
+
+    d = discover("https://psychonautwiki.org", timeout=timeout)
+    wiki_urls = [u.loc for u in d.urls if "/wiki/" in u.loc]
+    # Extract and URL-decode the page title from each /wiki/<Title> URL
+    titles = [unquote(url.split("/wiki/")[-1]) for url in wiki_urls]
+    return sorted(set(titles))  # deduplicate and sort
+
+
 class PsychonautWiki:
     """High-level client with a configurable transport.
 
@@ -235,6 +278,13 @@ class PsychonautWiki:
     def search(self, substance: str, *, resolve_name: bool = True) -> List[Substance]:
         return search_psychonaut_wiki(substance, resolve_name=resolve_name,
                                       transport=self.transport)
+
+    def list_wiki_pages(self, timeout: float = 30.0) -> List[str]:
+        """Return all wiki page titles discovered via the sitemap.
+
+        See :func:`list_wiki_pages` for details.
+        """
+        return list_wiki_pages(timeout=timeout)
 
     # legacy-compatible alias
     search_psychonaut_wiki = search

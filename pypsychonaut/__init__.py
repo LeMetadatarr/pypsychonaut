@@ -52,6 +52,7 @@ from pypsychonaut.wiki import (
     extract_substance_name,
     get_substance_index,
     get_substance_list,
+    list_wiki_pages,
     search_psychonaut_wiki,
 )
 from pypsychonaut._transport import Transport
@@ -72,6 +73,7 @@ __all__ = [
     "SUBSTANCE_QUERY",
     "get_substance_list",
     "get_substance_index",
+    "list_wiki_pages",
     "search_psychonaut_wiki",
     "extract_substance_name",
     "__version__",
