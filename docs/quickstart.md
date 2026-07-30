@@ -2,7 +2,7 @@
 
 ```bash
 pip install pypsychonaut
-pip install pypsychonaut[stealth]   # adds curl-cffi — recommended (Cloudflare)
+pip install pypsychonaut[stealth]   # adds curl-cffi, recommended (Cloudflare)
 pip install pypsychonaut[test]      # adds pytest
 ```
 
@@ -12,7 +12,7 @@ pip install pypsychonaut[test]      # adds pytest
 import pypsychonaut as pw
 
 names = pw.get_substance_list()        # flat list from Summary_index
-index = pw.get_substance_index()       # nested category → substance → url
+index = pw.get_substance_index()       # nested category -> substance -> url
 ```
 
 ## Structured data (GraphQL API)
@@ -32,8 +32,8 @@ pw.extract_substance_name("took some acid last night")   # 'LSD'
 pw.search_psychonaut_wiki("ecstasy")                      # resolves to MDMA
 ```
 
-`search_psychonaut_wiki` runs the query through `extract_substance_name` first
-(pass `resolve_name=False` to skip and query verbatim).
+`search_psychonaut_wiki` runs the query through `extract_substance_name`
+first. Pass `resolve_name=False` to skip this step and query verbatim.
 
 ## High-level client
 
@@ -44,9 +44,10 @@ client.search("molly")                 # MDMA
 
 ## Transport
 
-PsychonautWiki's wiki pages can sit behind Cloudflare; the GraphQL API does not.
-Both route through `unblock_requests.CloudflareSession`. Configure via kwargs or
-`PYPSYCHONAUT_*` env vars — see [advanced.md](advanced.md).
+PsychonautWiki's wiki pages can sit behind Cloudflare, but the GraphQL API does not.
+Both route through `unblock_requests.CloudflareSession`.
+Configure transport with kwargs or `PYPSYCHONAUT_*` env vars.
+See [advanced.md](advanced.md).
 
 ## Build a corpus
 
@@ -56,3 +57,6 @@ dataset.build_corpus("corpus", limit=5, delay=1.0)   # one markdown file per sub
 ```
 
 See [dataset.md](dataset.md).
+
+---
+[Home](../README.md) · [API reference →](api.md)
