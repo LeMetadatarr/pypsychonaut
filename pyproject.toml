@@ -21,6 +21,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+anon = ["anon_requests"]
 stealth = ["curl-cffi"]
 test = ["pytest"]
 
@@ -34,3 +35,8 @@ include = ["pypsychonaut*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pypsychonaut.version.__version__"}
+
+[tool.pytest.ini_options]
+markers = [
+    "live: tests that hit the live PsychonautWiki API (deselected by default with -m 'not live')",
+]
