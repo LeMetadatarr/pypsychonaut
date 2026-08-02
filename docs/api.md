@@ -8,6 +8,7 @@
 | `get_substance_index(*, transport=None)` | nested `dict` | `Summary_index` HTML |
 | `extract_substance_name(sentence, *, substance_list=None, transport=None)` | `str | False` | slang lexicon + list |
 | `search_psychonaut_wiki(substance, *, resolve_name=True, transport=None)` | `List[Substance]` | GraphQL API |
+| `list_wiki_pages(timeout=30.0)` | `List[str]` | sitemap (requires `sitemapper`) |
 
 Each function takes an optional `transport: Transport`. The module-level
 functions use a shared, environment-driven default transport when the caller

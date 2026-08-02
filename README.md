@@ -1,9 +1,10 @@
 # pypsychonaut
 
-Typed Python client for [PsychonautWiki](https://psychonautwiki.org), a
-harm-reduction wiki that catalogues psychoactive substances: their routes of
-administration, dose brackets, duration time-courses, classes, tolerance, and
-subjective effects.
+Typed Python client for [PsychonautWiki](https://psychonautwiki.org), a wiki
+that catalogues psychoactive substances: their routes of administration, dose
+brackets, duration time-courses, classes, tolerance, and subjective effects.
+The catalogue is a source of substance names, aliases, and structured
+entity data useful for building ASR and NER training sets.
 
 The client talks to two surfaces behind clean dataclasses:
 
@@ -12,8 +13,9 @@ The client talks to two surfaces behind clean dataclasses:
   dose, duration, and effect data.
 
 It also ships a **slang lexicon** (street name to canonical substance) and a
-**markdown corpus dumper** that writes one file per substance. This corpus is
-the retrieval source for a harm-reduction RAG assistant.
+**markdown corpus dumper** that writes one file per substance. The lexicon and
+corpus are useful as a substance-name gazetteer and entity dataset for NER and
+ASR training.
 
 ## Install
 
@@ -69,8 +71,8 @@ dataset.build_corpus("corpus", limit=5, delay=1.0)   # one .md per substance
 ```
 
 The dumper is resumable and polite. Each file has front-matter (class, common
-names, ROAs) and a body (dose/duration tables, effects). It is the intended
-retrieval source for a harm-reduction RAG assistant. See
+names, ROAs) and a body (dose/duration tables, effects). It is a source
+document set for entity extraction and retrieval tasks. See
 [docs/dataset.md](docs/dataset.md).
 
 ## Documentation
@@ -94,10 +96,10 @@ Live tests are deselected by default and need a network connection.
 
 ## Related projects
 
-- [TigreGotico/pyerowid](https://github.com/TigreGotico/pyerowid), a sibling
+- [LeMetadatarr/pyerowid](https://github.com/LeMetadatarr/pyerowid), a sibling
   client for Erowid's experience-report archive
-- [TigreGotico/pytripsit](https://github.com/TigreGotico/pytripsit), a
-  sibling client for TripSit's harm-reduction data
+- [LeMetadatarr/pytripsit](https://github.com/LeMetadatarr/pytripsit), a
+  sibling client for TripSit's substance data
 
 ## License
 

@@ -26,8 +26,8 @@ stealth = ["curl-cffi"]
 test = ["pytest"]
 
 [project.urls]
-Homepage = "https://github.com/TigreGotico/pypsychonaut"
-Repository = "https://github.com/TigreGotico/pypsychonaut"
+Homepage = "https://github.com/LeMetadatarr/pypsychonaut"
+Repository = "https://github.com/LeMetadatarr/pypsychonaut"
 
 [tool.setuptools.packages.find]
 where = ["."]
