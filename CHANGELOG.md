@@ -1,12 +1,20 @@
 # Changelog
 
-## [0.0.1a2](https://github.com/TigreGotico/pypsychonaut/tree/0.0.1a2) (2026-07-30)
+## [0.0.1a3](https://github.com/LeMetadatarr/pypsychonaut/tree/0.0.1a3) (2026-08-02)
 
-[Full Changelog](https://github.com/TigreGotico/pypsychonaut/compare/a40c6ca6710a4f09408e2bd359281807aa39b208...0.0.1a2)
+[Full Changelog](https://github.com/LeMetadatarr/pypsychonaut/compare/0.0.1a2...0.0.1a3)
 
 **Merged pull requests:**
 
-- docs: rewrite README in Simplified Technical English [\#3](https://github.com/TigreGotico/pypsychonaut/pull/3) ([JarbasAl](https://github.com/JarbasAl))
+- docs: QA pass — accuracy, org-move URLs, related projects [\#5](https://github.com/LeMetadatarr/pypsychonaut/pull/5) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.1a2](https://github.com/LeMetadatarr/pypsychonaut/tree/0.0.1a2) (2026-07-30)
+
+[Full Changelog](https://github.com/LeMetadatarr/pypsychonaut/compare/a40c6ca6710a4f09408e2bd359281807aa39b208...0.0.1a2)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#3](https://github.com/LeMetadatarr/pypsychonaut/pull/3) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
