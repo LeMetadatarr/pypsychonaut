@@ -2,8 +2,8 @@
 
 pypsychonaut can produce several datasets from PsychonautWiki. The headline
 artefact is a **markdown corpus** (one file per substance, from
-`pypsychonaut.dataset.build_corpus`), the retrieval source for a
-harm-reduction RAG assistant. The structured GraphQL data and the slang
+`pypsychonaut.dataset.build_corpus`), a source document set for entity
+extraction and retrieval tasks. The structured GraphQL data and the slang
 lexicon also yield clean tabular datasets.
 
 ## What this client can produce
@@ -17,10 +17,8 @@ source link. `dataset.build_corpus(out_dir, …)` builds it. The build is
 resumable and polite.
 
 - **Scale:** a few hundred substances (the whole `Summary_index`).
-- **Use:** chunk, embed, and retrieve for a grounded harm-reduction chatbot.
-  This corpus is the intended replacement source for the dead
-  AskTheCaterpillar Q&A bot, a retrieval-grounded assistant instead of an
-  opaque remote API.
+- **Use:** chunk, embed, and retrieve as grounding text for entity-linking
+  and retrieval-augmented tasks over substance names and their attributes.
 
 ### 2. Dose / duration table
 
@@ -76,9 +74,8 @@ corpus already embeds `Source:` URLs).
   LSD`, `ecstasy -> MDMA`) using a labelled alias-to-canonical pair set.
 - **Dose / duration extraction.** Train and evaluate extraction of structured
   dose and duration spans from text against the GraphQL ground truth.
-- **Retrieval / RAG.** The markdown corpus grounds a harm-reduction assistant
-  (the AskTheCaterpillar successor). Each chunk is attributable to a
-  substance page.
+- **Retrieval / RAG.** The markdown corpus grounds retrieval over substance
+  names and attributes. Each chunk is attributable to a substance page.
 - **Effect classification / linking.** Predict or link subjective effects to
   substances using the effects taxonomy.
 
