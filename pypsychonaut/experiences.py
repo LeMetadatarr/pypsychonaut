@@ -100,13 +100,19 @@ def _get_substance_list(t: Transport) -> List[str]:
 
 def iter_graphql_experiences(*, seen_ids: Optional[Set[str]] = None,
                               transport: Optional[Transport] = None,
+                              substances: Optional[List[str]] = None,
                               limit: int = 0) -> Iterator[dict]:
-    """Yield Erowid experience reports per substance via GraphQL."""
+    """Yield Erowid experience reports per substance via GraphQL.
+
+    If *substances* is given, use that list instead of fetching the live
+    `Summary_index`. This lets the crawler run when the HTML index is blocked.
+    """
     t = transport or default_transport()
     if seen_ids is None:
         seen_ids = set()
 
-    substances = _get_substance_list(t)
+    if substances is None:
+        substances = _get_substance_list(t)
     print(f"[pw_exp_gql] {len(substances)} substances to query")
     total = 0
 
@@ -255,6 +261,7 @@ def iter_html_experiences(*, seen_urls: Optional[Set[str]] = None,
 
 
 def export_jsonl(path: str, *, strategy: str = "both", delay: float = 1.5,
+                 substances: Optional[List[str]] = None,
                  limit: int = 0) -> int:
     global _min_delay
     _min_delay = delay
@@ -286,7 +293,8 @@ def export_jsonl(path: str, *, strategy: str = "both", delay: float = 1.5,
             count += 1
 
         if strategy in ("both", "graphql"):
-            for row in iter_graphql_experiences(seen_ids=seen_erowid_ids, transport=t, limit=limit):
+            for row in iter_graphql_experiences(seen_ids=seen_erowid_ids, transport=t,
+                                                substances=substances, limit=limit):
                 _write(row)
         if strategy in ("both", "html"):
             for row in iter_html_experiences(seen_urls=seen_urls, transport=t, limit=limit):
@@ -300,9 +308,16 @@ def main(argv=None):
     ap.add_argument("--out", default=str(Path.home() / ".cache/metadatarr/scrapers/psychonaut_experiences.jsonl"))
     ap.add_argument("--strategy", choices=["both", "graphql", "html"], default="both")
     ap.add_argument("--delay", type=float, default=1.5)
+    ap.add_argument("--substances", type=str, default=None,
+                    help="path to a file with one substance name per line (skips live index fetch)")
     ap.add_argument("--limit", type=int, default=0)
     args = ap.parse_args(argv)
-    n = export_jsonl(args.out, strategy=args.strategy, delay=args.delay, limit=args.limit)
+    substances = None
+    if args.substances:
+        with open(args.substances, encoding="utf-8") as f:
+            substances = [line.strip() for line in f if line.strip()]
+    n = export_jsonl(args.out, strategy=args.strategy, delay=args.delay,
+                     substances=substances, limit=args.limit)
     print(f"[pw_exp] done — {n} rows written")
 
 
