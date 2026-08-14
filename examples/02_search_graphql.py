@@ -1,4 +1,4 @@
-"""Example 02 — structured data from the GraphQL API.
+"""Example 02 — all substance fields from the GraphQL API.
 
 Run::
 
@@ -18,8 +18,18 @@ def main() -> None:
         total = roa.duration.total.to_dict() if roa.duration and roa.duration.total else None
         print(f"  {roa.name}: common dose {common}, total duration {total}")
 
-    print("\nfull to_dict():")
-    print(json.dumps(s.to_dict(), indent=2)[:500])
+    print("\n--- new expanded fields ---")
+    print(f"  featured: {s.featured}")
+    print(f"  common_names: {s.common_names}")
+    print(f"  addiction_potential: {s.addiction_potential}")
+    print(f"  toxicity: {s.toxicity}")
+    print(f"  cross_tolerances: {s.cross_tolerances}")
+    print(f"  images: {len(s.images)} images")
+    print(f"  unsafe_interactions: {len(s.unsafe_interactions)} interactions")
+    print(f"  dangerous_interactions: {len(s.dangerous_interactions)} interactions")
+    print(f"  has reagents: {s.reagents is not None}")
+
+    print("\nto_dict() keys:", list(s.to_dict().keys()))
 
 
 if __name__ == "__main__":
