@@ -7,3 +7,5 @@ each stable release.
 ## 0.0.1a4
 
 - Add effects catalog, Erowid experience crawlers, reagent queries, and full-wiki page-text fetch.
+- `pypsychonaut.experiences` accepts `--substances PATH` and a `substances=`
+  parameter to skip the live `Summary_index` HTML fetch when it is blocked.
