@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1a1](https://github.com/LeMetadatarr/pypsychonaut/tree/0.1.1a1) (2026-08-14)
+
+[Full Changelog](https://github.com/LeMetadatarr/pypsychonaut/compare/0.1.0a1...0.1.1a1)
+
+**Merged pull requests:**
+
+- fix: allow substance list override in experiences crawler [\#8](https://github.com/LeMetadatarr/pypsychonaut/pull/8) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.1.0a1](https://github.com/LeMetadatarr/pypsychonaut/tree/0.1.0a1) (2026-08-14)
 
 [Full Changelog](https://github.com/LeMetadatarr/pypsychonaut/compare/0.0.1a4...0.1.0a1)
