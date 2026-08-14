@@ -1,18 +1,3 @@
-"""Typed dataclass models for pypsychonaut.
-
-These mirror the PsychonautWiki GraphQL schema (``api.psychonautwiki.org``).
-A :class:`Substance` is the top-level record; it carries its routes of
-administration (:class:`Roa`), each with a :class:`Dose` and a
-:class:`Duration`, plus its chemical/psychoactive class, tolerance notes and
-subjective :class:`Effect` list.
-
-Shared interface on the headline models:
-
-- ``url`` — the canonical PsychonautWiki page;
-- ``to_dict()`` — a JSON-serialisable plain ``dict``;
-- ``Substance.from_graphql()`` / ``Roa.from_graphql()`` etc. — build a model
-  from the raw GraphQL JSON node.
-"""
 from __future__ import annotations
 
 import dataclasses
@@ -28,8 +13,6 @@ def _maybe(node: Optional[dict], key: str) -> Any:
 
 @dataclass
 class Range:
-    """A numeric ``{min, max}`` pair (dose bracket or duration span)."""
-
     min: Optional[float] = None
     max: Optional[float] = None
     units: Optional[str] = None
@@ -46,12 +29,6 @@ class Range:
 
 @dataclass
 class Dose:
-    """Dose brackets for a single route of administration.
-
-    ``threshold`` and ``heavy`` are scalars in ``units``; ``light`` / ``common``
-    / ``strong`` are :class:`Range` brackets.
-    """
-
     units: Optional[str] = None
     threshold: Optional[float] = None
     heavy: Optional[float] = None
@@ -89,8 +66,6 @@ class Dose:
 
 @dataclass
 class Duration:
-    """Time course of a route of administration, each phase a :class:`Range`."""
-
     onset: Optional[Range] = None
     comeup: Optional[Range] = None
     peak: Optional[Range] = None
@@ -118,8 +93,6 @@ class Duration:
 
 @dataclass
 class Roa:
-    """A route of administration (oral, sublingual, insufflated, …)."""
-
     name: str
     dose: Optional[Dose] = None
     duration: Optional[Duration] = None
@@ -147,23 +120,27 @@ class Roa:
 
 @dataclass
 class Effect:
-    """A subjective effect linked from a substance page."""
-
     name: str
     url: Optional[str] = None
+    substances: List[str] = field(default_factory=list)
 
     @classmethod
     def from_graphql(cls, node: dict) -> "Effect":
-        return cls(name=node.get("name") or "", url=node.get("url"))
+        substances = []
+        subs = node.get("substances")
+        if isinstance(subs, list):
+            substances = [s.get("name", "") if isinstance(s, dict) else str(s) for s in subs]
+        return cls(name=node.get("name") or "", url=node.get("url"), substances=substances)
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"name": self.name, "url": self.url}
+        d: Dict[str, Any] = {"name": self.name, "url": self.url}
+        if self.substances:
+            d["substances"] = self.substances
+        return d
 
 
 @dataclass
 class SubstanceClass:
-    """Chemical and psychoactive class membership."""
-
     chemical: List[str] = field(default_factory=list)
     psychoactive: List[str] = field(default_factory=list)
 
@@ -182,8 +159,6 @@ class SubstanceClass:
 
 @dataclass
 class Tolerance:
-    """Free-text tolerance notes (full / half-life / baseline reset)."""
-
     full: Optional[str] = None
     half: Optional[str] = None
     zero: Optional[str] = None
@@ -199,36 +174,327 @@ class Tolerance:
 
 
 @dataclass
+class SubstanceImage:
+    thumb: Optional[str] = None
+    image: Optional[str] = None
+
+    @classmethod
+    def from_graphql(cls, node: dict) -> "SubstanceImage":
+        return cls(thumb=node.get("thumb"), image=node.get("image"))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"thumb": self.thumb, "image": self.image}
+
+
+@dataclass
+class SubstanceInteraction:
+    name: str
+    url: Optional[str] = None
+    addiction_potential: Optional[str] = None
+    toxicity: Optional[List[str]] = None
+    summary: Optional[str] = None
+
+    @classmethod
+    def from_graphql(cls, node: dict) -> "SubstanceInteraction":
+        return cls(
+            name=node.get("name") or "",
+            url=node.get("url"),
+            addiction_potential=node.get("addictionPotential"),
+            toxicity=[str(s) for s in (node.get("toxicity") or [])] if node.get("toxicity") else None,
+            summary=node.get("summary"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        d: Dict[str, Any] = {"name": self.name}
+        if self.url:
+            d["url"] = self.url
+        if self.addiction_potential:
+            d["addiction_potential"] = self.addiction_potential
+        if self.toxicity:
+            d["toxicity"] = self.toxicity
+        if self.summary:
+            d["summary"] = self.summary
+        return d
+
+
+@dataclass
+class ReagentColor:
+    id: Optional[int] = None
+    name: Optional[str] = None
+    hex: Optional[str] = None
+    simple: Optional[bool] = None
+    simple_color_id: Optional[int] = None
+
+    @classmethod
+    def from_graphql(cls, node: dict) -> "ReagentColor":
+        return cls(
+            id=node.get("id"),
+            name=node.get("name"),
+            hex=node.get("hex"),
+            simple=node.get("simple"),
+            simple_color_id=node.get("simpleColorId"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
+
+
+@dataclass
+class Reagent:
+    id: Optional[int] = None
+    name: Optional[str] = None
+    full_name: Optional[str] = None
+    short_name: Optional[str] = None
+    white_first_color: Optional[bool] = None
+
+    @classmethod
+    def from_graphql(cls, node: dict) -> "Reagent":
+        return cls(
+            id=node.get("id"),
+            name=node.get("name"),
+            full_name=node.get("fullName"),
+            short_name=node.get("shortName"),
+            white_first_color=node.get("whiteFirstColor"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
+
+
+@dataclass
+class ReagentTestResult:
+    reagent: Optional[Reagent] = None
+    start_colors: List[ReagentColor] = field(default_factory=list)
+    end_colors: List[ReagentColor] = field(default_factory=list)
+    is_positive: Optional[bool] = None
+    description: Optional[str] = None
+
+    @classmethod
+    def from_graphql(cls, node: dict) -> "ReagentTestResult":
+        return cls(
+            reagent=Reagent.from_graphql(node.get("reagent") or {}),
+            start_colors=[ReagentColor.from_graphql(c) for c in (node.get("startColors") or [])],
+            end_colors=[ReagentColor.from_graphql(c) for c in (node.get("endColors") or [])],
+            is_positive=node.get("isPositive"),
+            description=node.get("description"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        d: Dict[str, Any] = {}
+        if self.reagent:
+            d["reagent"] = self.reagent.to_dict()
+        if self.start_colors:
+            d["start_colors"] = [c.to_dict() for c in self.start_colors]
+        if self.end_colors:
+            d["end_colors"] = [c.to_dict() for c in self.end_colors]
+        if self.is_positive is not None:
+            d["is_positive"] = self.is_positive
+        if self.description:
+            d["description"] = self.description
+        return d
+
+
+@dataclass
+class SubstanceReagents:
+    substance_name: Optional[str] = None
+    raw_name: Optional[str] = None
+    results: List[ReagentTestResult] = field(default_factory=list)
+
+    @classmethod
+    def from_graphql(cls, node: Optional[dict]) -> Optional["SubstanceReagents"]:
+        if not isinstance(node, dict):
+            return None
+        return cls(
+            substance_name=node.get("substanceName"),
+            raw_name=node.get("rawName"),
+            results=[ReagentTestResult.from_graphql(r) for r in (node.get("results") or [])],
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        d: Dict[str, Any] = {}
+        if self.substance_name:
+            d["substance_name"] = self.substance_name
+        if self.raw_name:
+            d["raw_name"] = self.raw_name
+        if self.results:
+            d["results"] = [r.to_dict() for r in self.results]
+        return d
+
+
+@dataclass
+class ErowidMeta:
+    erowid_id: Optional[str] = None
+    gender: Optional[str] = None
+    published: Optional[str] = None
+    year: Optional[int] = None
+    age: Optional[int] = None
+    views: Optional[int] = None
+
+    @classmethod
+    def from_graphql(cls, node: Optional[dict]) -> Optional["ErowidMeta"]:
+        if not isinstance(node, dict):
+            return None
+        return cls(
+            erowid_id=node.get("erowidId"),
+            gender=node.get("gender"),
+            published=node.get("published"),
+            year=node.get("year"),
+            age=node.get("age"),
+            views=node.get("views"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
+
+
+@dataclass
+class ErowidSubstanceInfo:
+    amount: Optional[str] = None
+    method: Optional[str] = None
+    substance: Optional[str] = None
+    form: Optional[str] = None
+
+    @classmethod
+    def from_graphql(cls, node: Optional[dict]) -> Optional["ErowidSubstanceInfo"]:
+        if not isinstance(node, dict) or not node:
+            return None
+        return cls(
+            amount=node.get("amount"),
+            method=node.get("method"),
+            substance=node.get("substance"),
+            form=node.get("form"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
+
+
+@dataclass
+class ErowidExperience:
+    title: Optional[str] = None
+    author: Optional[str] = None
+    substance: Optional[str] = None
+    body: Optional[str] = None
+    meta: Optional[ErowidMeta] = None
+    substance_info: List[ErowidSubstanceInfo] = field(default_factory=list)
+    erowid_notes: List[str] = field(default_factory=list)
+    pull_quotes: List[str] = field(default_factory=list)
+
+    @classmethod
+    def from_graphql(cls, node: dict) -> "ErowidExperience":
+        infos = []
+        raw = node.get("substanceInfo")
+        if isinstance(raw, list):
+            infos = [ErowidSubstanceInfo.from_graphql(i) for i in raw if isinstance(i, dict)]
+        return cls(
+            title=node.get("title"),
+            author=node.get("author"),
+            substance=node.get("substance"),
+            body=node.get("body"),
+            meta=ErowidMeta.from_graphql(node.get("meta")),
+            substance_info=infos,
+            erowid_notes=[str(s) for s in (node.get("erowidNotes") or [])],
+            pull_quotes=[str(s) for s in (node.get("pullQuotes") or [])],
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        d: Dict[str, Any] = {}
+        if self.title:
+            d["title"] = self.title
+        if self.author:
+            d["author"] = self.author
+        if self.substance:
+            d["substance"] = self.substance
+        if self.body:
+            d["body"] = self.body
+        if self.meta:
+            d["meta"] = self.meta.to_dict()
+        if self.substance_info:
+            d["substance_info"] = [s.to_dict() for s in self.substance_info]
+        if self.erowid_notes:
+            d["erowid_notes"] = self.erowid_notes
+        if self.pull_quotes:
+            d["pull_quotes"] = self.pull_quotes
+        return d
+
+
+@dataclass
+class RoaTypes:
+    oral: Optional[Roa] = None
+    sublingual: Optional[Roa] = None
+    buccal: Optional[Roa] = None
+    insufflated: Optional[Roa] = None
+    rectal: Optional[Roa] = None
+    transdermal: Optional[Roa] = None
+    subcutaneous: Optional[Roa] = None
+    intramuscular: Optional[Roa] = None
+    intravenous: Optional[Roa] = None
+    smoked: Optional[Roa] = None
+
+    _ROUTES = ("oral", "sublingual", "buccal", "insufflated", "rectal",
+               "transdermal", "subcutaneous", "intramuscular", "intravenous", "smoked")
+
+    @classmethod
+    def from_graphql(cls, node: Optional[dict]) -> Optional["RoaTypes"]:
+        if not isinstance(node, dict):
+            return None
+        return cls(**{r: Roa.from_graphql(node.get(r) or {}) if node.get(r) else None
+                      for r in cls._ROUTES})
+
+    def to_dict(self) -> Dict[str, Any]:
+        d: Dict[str, Any] = {}
+        for r in self._ROUTES:
+            val = getattr(self, r)
+            if val is not None:
+                d[r] = val.to_dict()
+        return d
+
+
+@dataclass
 class Substance:
-    """A PsychonautWiki substance record from the GraphQL API.
-
-    Obtain via :func:`pypsychonaut.search_psychonaut_wiki`.
-
-    Example::
-
-        import pypsychonaut as pw
-        subs = pw.search_psychonaut_wiki("LSD")
-        s = subs[0]
-        print(s.name, [r.name for r in s.roas])
-        print(s.substance_class.psychoactive)   # ['Psychedelic']
-    """
-
     name: str
     url: Optional[str] = None
     roas: List[Roa] = field(default_factory=list)
+    roa_typed: Optional[RoaTypes] = None
     substance_class: Optional[SubstanceClass] = None
     tolerance: Optional[Tolerance] = None
     effects: List[Effect] = field(default_factory=list)
+    featured: bool = False
+    addiction_potential: Optional[str] = None
+    toxicity: Optional[List[str]] = None
+    cross_tolerances: Optional[List[str]] = None
+    common_names: Optional[List[str]] = None
+    systematic_name: Optional[str] = None
+    summary: Optional[str] = None
+    images: List[SubstanceImage] = field(default_factory=list)
+    uncertain_interactions: List[SubstanceInteraction] = field(default_factory=list)
+    unsafe_interactions: List[SubstanceInteraction] = field(default_factory=list)
+    dangerous_interactions: List[SubstanceInteraction] = field(default_factory=list)
+    reagents: Optional[SubstanceReagents] = None
 
     @classmethod
     def from_graphql(cls, node: dict) -> "Substance":
+        images = [SubstanceImage.from_graphql(i) for i in (node.get("images") or [])]
         return cls(
             name=node.get("name") or "",
             url=node.get("url"),
             roas=[Roa.from_graphql(r) for r in (node.get("roas") or [])],
+            roa_typed=RoaTypes.from_graphql(node.get("roa")),
             substance_class=SubstanceClass.from_graphql(node.get("class")),
             tolerance=Tolerance.from_graphql(node.get("tolerance")),
             effects=[Effect.from_graphql(e) for e in (node.get("effects") or [])],
+            featured=bool(node.get("featured")),
+            addiction_potential=node.get("addictionPotential"),
+            toxicity=[str(s) for s in (node.get("toxicity") or [])] if node.get("toxicity") else None,
+            cross_tolerances=[str(s) for s in (node.get("crossTolerances") or [])] if node.get("crossTolerances") else None,
+            common_names=[str(s) for s in (node.get("commonNames") or [])] if node.get("commonNames") else None,
+            systematic_name=node.get("systematicName"),
+            summary=node.get("summary"),
+            images=images,
+            uncertain_interactions=[SubstanceInteraction.from_graphql(i) for i in (node.get("uncertainInteractions") or [])],
+            unsafe_interactions=[SubstanceInteraction.from_graphql(i) for i in (node.get("unsafeInteractions") or [])],
+            dangerous_interactions=[SubstanceInteraction.from_graphql(i) for i in (node.get("dangerousInteractions") or [])],
+            reagents=SubstanceReagents.from_graphql(node.get("reagents")),
         )
 
     @property
@@ -236,7 +502,7 @@ class Substance:
         return self.url or f"{BASE}/wiki/{self.name}"
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        d: Dict[str, Any] = {
             "name": self.name,
             "url": self.page_url,
             "class": self.substance_class.to_dict() if self.substance_class else None,
@@ -244,15 +510,40 @@ class Substance:
             "roas": [r.to_dict() for r in self.roas],
             "effects": [e.to_dict() for e in self.effects],
         }
+        if self.roa_typed:
+            d["roa_typed"] = self.roa_typed.to_dict()
+        if self.featured:
+            d["featured"] = True
+        if self.addiction_potential:
+            d["addiction_potential"] = self.addiction_potential
+        if self.toxicity:
+            d["toxicity"] = self.toxicity
+        if self.cross_tolerances:
+            d["cross_tolerances"] = self.cross_tolerances
+        if self.common_names:
+            d["common_names"] = self.common_names
+        if self.systematic_name:
+            d["systematic_name"] = self.systematic_name
+        if self.summary:
+            d["summary"] = self.summary
+        if self.images:
+            d["images"] = [i.to_dict() for i in self.images]
+        if self.uncertain_interactions:
+            d["uncertain_interactions"] = [i.to_dict() for i in self.uncertain_interactions]
+        if self.unsafe_interactions:
+            d["unsafe_interactions"] = [i.to_dict() for i in self.unsafe_interactions]
+        if self.dangerous_interactions:
+            d["dangerous_interactions"] = [i.to_dict() for i in self.dangerous_interactions]
+        if self.reagents:
+            d["reagents"] = self.reagents.to_dict()
+        return d
 
 
 __all__ = [
-    "Range",
-    "Dose",
-    "Duration",
-    "Roa",
-    "Effect",
-    "SubstanceClass",
-    "Tolerance",
+    "Range", "Dose", "Duration", "Roa", "RoaTypes",
+    "Effect", "SubstanceClass", "Tolerance",
+    "SubstanceImage", "SubstanceInteraction",
+    "ReagentColor", "Reagent", "ReagentTestResult", "SubstanceReagents",
+    "ErowidMeta", "ErowidSubstanceInfo", "ErowidExperience",
     "Substance",
 ]
